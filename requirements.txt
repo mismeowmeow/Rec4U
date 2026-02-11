@@ -2,7 +2,7 @@ fastapi
 uvicorn
 sqlalchemy
 python-jose
-passlib[bcrypt]
+Argon2
 python-multipart
 python-dotenv
 moviepy
