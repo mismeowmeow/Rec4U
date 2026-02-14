@@ -1,8 +1,8 @@
-fastapi
-uvicorn
-sqlalchemy
+Fastapi
+Uvicorn
+Sqlalchemy
 python-jose
-Argon2
+argon2-cffi
 python-multipart
 python-dotenv
 moviepy
