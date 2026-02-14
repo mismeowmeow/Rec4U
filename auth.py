@@ -13,7 +13,6 @@ from pydantic import BaseModel, EmailStr
 # Load environment variables
 load_dotenv()
 
-# Configuration
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-this")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
@@ -50,7 +49,6 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-# Utility functions
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain password against a hashed password using Argon2"""
     return pwd_context.verify(plain_password, hashed_password)
@@ -75,8 +73,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 def authenticate_user(db: Session, username: str, password: str):
     """Authenticate a user by username and password"""
-    # Import User model here to avoid circular imports
-    from models import User  # Adjust import path as needed
+    from models import User  
     
     user = db.query(User).filter(User.username == username).first()
     if not user:
@@ -88,10 +85,10 @@ def authenticate_user(db: Session, username: str, password: str):
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends()  # Replace with your get_db dependency
+    db: Session = Depends()  
 ):
     """Get the current authenticated user from JWT token"""
-    from models import User  # Adjust import path as needed
+    from models import User  
     
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -113,8 +110,6 @@ def get_current_user(
     return user
 
 
-# Endpoint functions (add these to your main.py with @app.post decorators)
-
 def register(user_data: UserCreate, db: Session = Depends()):
     """
     Register a new user
@@ -126,7 +121,7 @@ def register(user_data: UserCreate, db: Session = Depends()):
     Returns:
         Created user details
     """
-    from models import User  # Adjust import path as needed
+    from models import User  
     
     # Check if username already exists
     existing_user = db.query(User).filter(User.username == user_data.username).first()
@@ -161,7 +156,7 @@ def register(user_data: UserCreate, db: Session = Depends()):
 
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends()  # Replace with your get_db dependency
+    db: Session = Depends() 
 ) -> Token:
     """
     Login endpoint - authenticate user and return JWT token
