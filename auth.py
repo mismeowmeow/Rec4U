@@ -3,12 +3,14 @@ from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
+
+from database import SessionLocal
 
 # Load environment variables
 load_dotenv()
@@ -21,7 +23,17 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 # OAuth2 scheme for token authentication
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+router = APIRouter()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 # Pydantic models
@@ -85,7 +97,7 @@ def authenticate_user(db: Session, username: str, password: str):
 
 def get_current_user(
     token: str = Depends(oauth2_scheme),
-    db: Session = Depends()  
+    db: Session = Depends(get_db)
 ):
     """Get the current authenticated user from JWT token"""
     from models import User  
@@ -110,7 +122,8 @@ def get_current_user(
     return user
 
 
-def register(user_data: UserCreate, db: Session = Depends()):
+@router.post("/register", response_model=UserResponse)
+def register(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Register a new user
     
@@ -154,9 +167,10 @@ def register(user_data: UserCreate, db: Session = Depends()):
     return new_user
 
 
+@router.post("/login", response_model=Token)
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends() 
+    db: Session = Depends(get_db)
 ) -> Token:
     """
     Login endpoint - authenticate user and return JWT token
@@ -184,6 +198,7 @@ def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.get("/me", response_model=UserResponse)
 def get_me(current_user = Depends(get_current_user)) -> UserResponse:
     """
     Get current authenticated user info

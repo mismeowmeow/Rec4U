@@ -4,8 +4,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
-from fastapi import UploadFile, BackgroundTasks
-from moviepy.editor import VideoFileClip
+from fastapi import UploadFile, BackgroundTasks, APIRouter
+from moviepy import VideoFileClip
 
 # ---------------------------
 # Recordings folder
@@ -13,6 +13,8 @@ from moviepy.editor import VideoFileClip
 BASE_DIR = Path(__file__).resolve().parent
 RECORDINGS_DIR = BASE_DIR / "recordings"
 RECORDINGS_DIR.mkdir(exist_ok=True)
+
+router = APIRouter()
 
 # ---------------------------
 # Allowed video types
