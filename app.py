@@ -1,9 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from database import engine
 from models import Base
-
 from auth import router as auth_router
 from recordings import router as recordings_router
 from library import router as library_router
